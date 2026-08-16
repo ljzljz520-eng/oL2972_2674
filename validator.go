@@ -52,21 +52,19 @@ func (v *ExitValidator) Validate(token string) PreChargeStatus {
 		return result
 	}
 
-	status := ValidationPending
-	defer v.audit.Record(AuditRecord{
-		Plate:     claims.Plate,
-		EntryTime: claims.EntryTime,
-		ZoneCode:  claims.ZoneCode,
-		Status:    status,
-	})
-
-	status = ValidationValid
-	return PreChargeStatus{
+	result := PreChargeStatus{
 		CredentialValid: true,
-		Status:          status,
+		Status:          ValidationValid,
 		ChargeState:     ChargeReady,
 		Plate:           claims.Plate,
 		EntryTime:       claims.EntryTime,
 		ZoneCode:        claims.ZoneCode,
 	}
+	v.audit.Record(AuditRecord{
+		Plate:     claims.Plate,
+		EntryTime: claims.EntryTime,
+		ZoneCode:  claims.ZoneCode,
+		Status:    result.Status,
+	})
+	return result
 }
